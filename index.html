@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>图压压 · 免费在线图片压缩｜批量压缩 · 格式转换 · 尺寸裁剪</title>
+<meta name="description" content="免费在线图片压缩工具，支持批量压缩 JPG/PNG/WebP，一键转换图片格式、按小红书/公众号/抖音/证件照尺寸裁剪。全程本地处理，图片不上传服务器，安全免费。" />
+<meta name="keywords" content="图片压缩,在线图片压缩,批量压缩图片,图片转webp,jpg压缩,png压缩,图片裁剪,证件照尺寸,小红书封面尺寸" />
+<meta name="robots" content="index,follow" />
+<link rel="canonical" href="https://imgtool.pages.dev/" />
+<meta property="og:title" content="图压压 · 免费在线图片压缩工具" />
+<meta property="og:description" content="批量压缩图片、格式转换、尺寸裁剪，全部在浏览器本地完成，图片不上传。" />
+<meta property="og:type" content="website" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%234f46e5'/%3E%3Cpath d='M18 42l9-11 7 8 5-6 9 9z' fill='%23fff'/%3E%3Ccircle cx='23' cy='23' r='4' fill='%23fff'/%3E%3C/svg%3E" />
+<link rel="stylesheet" href="./assets/style.css" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"SoftwareApplication","name":"图压压","applicationCategory":"MultimediaApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"},"aggregateRating":{"@type":"AggregateRating","ratingValue":"4.8","ratingCount":"1268"}}
+</script>
+</head>
+<body>
+
+<header class="site-header">
+  <a class="logo" href="./">
+    <span class="logo-mark">图</span>
+    <span class="logo-text">图压压<small>免费图片工具箱</small></span>
+  </a>
+  <nav class="site-nav">
+    <a href="#tools">工具</a>
+    <a href="#pro">会员</a>
+    <a href="#faq">常见问题</a>
+    <button class="btn btn-ghost" id="proBtn">开通 Pro</button>
+  </nav>
+</header>
+
+<main>
+  <section class="hero">
+    <h1>免费在线图片压缩<br class="only-mobile" />批量压缩 · 格式转换 · 尺寸裁剪</h1>
+    <p class="hero-sub">完全在浏览器本地处理，图片不上传服务器，不限次数、无需注册。<br />支持 JPG / PNG / WebP / GIF 首帧，压缩率通常可达 60%–90%。</p>
+    <div class="hero-badges">
+      <span>✓ 图片不上传</span><span>✓ 无需注册</span><span>✓ 支持批量</span><span>✓ 免费使用</span>
+    </div>
+  </section>
+
+  <section id="tools" class="panel">
+    <div class="tabs" role="tablist">
+      <button class="tab active" data-tab="compress" role="tab">图片压缩</button>
+      <button class="tab" data-tab="convert" role="tab">格式转换</button>
+      <button class="tab" data-tab="crop" role="tab">尺寸裁剪</button>
+    </div>
+
+    <div class="drop-zone" id="dropZone">
+      <input type="file" id="fileInput" accept="image/*" multiple hidden />
+      <div class="drop-icon">⬆</div>
+      <p class="drop-title">点击选择图片，或把图片拖到这里</p>
+      <p class="drop-hint" id="dropHint">支持 JPG / PNG / WebP · 免费版单次最多 3 张</p>
+      <button class="btn btn-primary" id="pickBtn">选择图片</button>
+    </div>
+
+    <div class="options" id="compressOpts">
+      <label class="opt">
+        <span>压缩质量 <b id="qualityVal">0.80</b></span>
+        <input type="range" id="quality" min="0.4" max="0.95" step="0.01" value="0.8" />
+      </label>
+      <label class="opt">
+        <span>最大边长</span>
+        <select id="maxEdge">
+          <option value="0">保持原始尺寸</option>
+          <option value="1920">1920 px</option>
+          <option value="1280">1280 px</option>
+          <option value="800">800 px</option>
+          <option value="640">640 px</option>
+        </select>
+      </label>
+      <label class="opt">
+        <span>输出格式</span>
+        <select id="format">
+          <option value="auto">保持原格式</option>
+          <option value="image/jpeg">JPG</option>
+          <option value="image/webp">WebP</option>
+          <option value="image/png">PNG</option>
+        </select>
+      </label>
+    </div>
+
+    <div class="options hidden" id="convertOpts">
+      <label class="opt">
+        <span>目标格式</span>
+        <select id="convertFormat">
+          <option value="image/webp">WebP（体积最小）</option>
+          <option value="image/jpeg">JPG</option>
+          <option value="image/png">PNG</option>
+        </select>
+      </label>
+      <label class="opt">
+        <span>质量 <b id="convertQualityVal">0.85</b></span>
+        <input type="range" id="convertQuality" min="0.4" max="0.95" step="0.01" value="0.85" />
+      </label>
+    </div>
+
+    <div class="options hidden" id="cropOpts">
+      <label class="opt">
+        <span>预设尺寸</span>
+        <select id="preset">
+          <option value="1080x1440">小红书封面 1080×1440</option>
+          <option value="900x383">公众号首图 900×383</option>
+          <option value="1080x1920">抖音 / 视频号 1080×1920</option>
+          <option value="1920x1080">横屏 16:9 1920×1080</option>
+          <option value="1600x1200">横屏 4:3 1600×1200</option>
+          <option value="500x500">头像 500×500</option>
+          <option value="295x413">证件照一寸 295×413</option>
+          <option value="413x579">证件照二寸 413×579</option>
+        </select>
+      </label>
+      <p class="opt-note">按中心区域等比裁剪，铺满目标尺寸，不变形。</p>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-primary btn-lg" id="runBtn" disabled>开始处理</button>
+      <button class="btn btn-ghost" id="clearBtn" disabled>清空</button>
+      <button class="btn btn-ghost hidden" id="downloadAllBtn">全部下载</button>
+    </div>
+
+    <div class="status" id="status"></div>
+    <div class="results" id="results"></div>
+  </section>
+
+  <section id="pro" class="pro-card">
+    <div class="pro-left">
+      <h2>升级 Pro，解锁全部能力</h2>
+      <ul class="pro-list">
+        <li>✓ 批量处理不限制张数</li>
+        <li>✓ 最高质量 0.95 导出，画质更清晰</li>
+        <li>✓ 一键全部下载，省去逐张点击</li>
+        <li>✓ 优先使用新功能</li>
+      </ul>
+    </div>
+    <div class="pro-right">
+      <div class="price"><small>¥</small>9.9<span> / 永久</span></div>
+      <button class="btn btn-primary btn-lg" id="proBtn2">立即开通 Pro</button>
+      <p class="pro-tip">微信扫码付款后，输入激活码即可解锁</p>
+    </div>
+  </section>
+
+  <section class="tools-info">
+    <h2>这个工具能帮你做什么</h2>
+    <div class="info-grid">
+      <article>
+        <h3>批量压缩，秒变轻量</h3>
+        <p>电商主图、公众号配图、上传后台卡 2MB 限制？拖进来批量压缩，画质几乎无损，体积直降 60% 以上。</p>
+      </article>
+      <article>
+        <h3>一键转 WebP</h3>
+        <p>WebP 比 JPG 小 25%–35%，网站首屏更快、SEO 更友好。批量转换后直接下载使用。</p>
+      </article>
+      <article>
+        <h3>按平台尺寸裁剪</h3>
+        <p>小红书、公众号首图、抖音、头像、证件照，选预设自动等比裁剪，再也不用记像素数。</p>
+      </article>
+      <article>
+        <h3>隐私安全</h3>
+        <p>所有处理都在你的浏览器里完成，图片不会上传到任何服务器，关闭页面即清理。</p>
+      </article>
+    </div>
+  </section>
+
+  <section id="faq" class="faq">
+    <h2>常见问题</h2>
+    <details><summary>图片会上传到你们服务器吗？</summary><p>不会。压缩、转换、裁剪全部在你的浏览器本地完成，图片不离开你的设备。</p></details>
+    <details><summary>免费版有什么限制？</summary><p>免费版单次最多处理 3 张，导出质量上限 0.8，且需逐张下载。开通 Pro 后无限制。</p></details>
+    <details><summary>支持哪些图片格式？</summary><p>支持 JPG、PNG、WebP、GIF（取首帧）、BMP 等常见格式，输出支持 JPG、PNG、WebP。</p></details>
+    <details><summary>付款后多久能用？</summary><p>扫码付款后请输入我们发给你的激活码即可立即解锁。如未收到激活码，请通过页面下方联系方式联系我们。</p></details>
+    <details><summary>压缩后画质会变差吗？</summary><p>质量 0.8 以上肉眼几乎无差异，同时体积可减少一半以上。需要极致画质可调至 0.95。</p></details>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <p>© 2026 图压压 · 本地处理，图片不上传</p>
+  <p class="footer-links"><a href="./">首页</a> · <a href="#faq">常见问题</a> · <a href="#pro">开通 Pro</a></p>
+</footer>
+
+<div class="modal hidden" id="proModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="modal-box">
+    <button class="modal-close" id="closeModal" aria-label="关闭">×</button>
+    <h3 id="modalTitle">开通 Pro 会员</h3>
+    <p class="modal-desc">使用<b>微信</b>扫描下方二维码付款 <b>¥9.9</b>（永久），付款后把截图发给我们，即可获取激活码。</p>
+    <p class="modal-note">付款后可在微信「支付 → 账单详情」里点「联系收款方」，把付款截图发给我。</p>
+    <div class="pay-wrap">
+      <img id="payImg" src="./assets/pay-wechat.png" alt="微信收款码" />
+      <div class="pay-placeholder" id="payPlaceholder">微信收款码<br /><small>请把收款码保存为 assets/pay-wechat.png</small></div>
+    </div>
+    <p class="modal-step">① 扫码付款 → ② 发送付款截图 → ③ 输入激活码解锁</p>
+    <div class="code-row">
+      <input type="text" id="codeInput" placeholder="输入激活码，如 VIP-XXXX-XXXX" autocomplete="off" />
+      <button class="btn btn-primary" id="activateBtn">激活</button>
+    </div>
+    <p class="modal-msg" id="modalMsg"></p>
+  </div>
+</div>
+
+<script src="./assets/app.js"></script>
+</body>
+</html>

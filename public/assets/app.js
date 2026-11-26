@@ -1,14 +1,9 @@
 /* 图压压 —— 纯前端图片工具
  * 压缩 / 格式转换 / 尺寸裁剪，全部在浏览器本地完成，图片不离开设备。
  *
- * 关于激活码：这是纯静态站点，没有后端，所以"付款验证"只能靠人工发放激活码。
- * 下面 CODES 就是可用的激活码清单，请改成你自己的、不要把真实码贴到公开渠道。
- * 想做自动到账，需要接支付回调的后端（Cloudflare Functions + 支付服务商）。
+ * 激活码：由服务端 /api/verify 校验（Cloudflare Pages Function + 密钥签名），
+ * 源码里不含任何可用激活码。发码请用 tools/gen-code.mjs。
  */
-const CODES = [
-  "VIP-2026-8888", // 示例码，请替换
-];
-
 const FREE_MAX_FILES = 3;
 const FREE_MAX_QUALITY = 0.8;
 const PRO_MAX_QUALITY = 0.95;
@@ -352,24 +347,45 @@ function openPro() {
   }
 }
 
-function activate() {
+async function activate() {
   const input = $("#codeInput").value.trim().toUpperCase();
   const msg = $("#modalMsg");
+  const btn = $("#activateBtn");
   if (!input) {
     msg.textContent = "请输入激活码";
     msg.className = "modal-msg err";
     return;
   }
-  if (CODES.includes(input)) {
-    localStorage.setItem(PRO_KEY, "1");
-    state.isPro = true;
-    applyProState();
-    msg.textContent = "激活成功，Pro 已解锁！";
-    msg.className = "modal-msg ok";
-    setTimeout(() => $("#proModal").classList.add("hidden"), 1200);
-  } else {
-    msg.textContent = "激活码无效，请核对后重试，或联系客服获取";
+
+  btn.disabled = true;
+  btn.textContent = "验证中…";
+  msg.textContent = "";
+  msg.className = "modal-msg";
+
+  try {
+    const res = await fetch("/api/verify", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ code: input }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (res.ok && data.ok) {
+      localStorage.setItem(PRO_KEY, "1");
+      state.isPro = true;
+      applyProState();
+      msg.textContent = "激活成功，Pro 已解锁！";
+      msg.className = "modal-msg ok";
+      setTimeout(() => $("#proModal").classList.add("hidden"), 1200);
+    } else {
+      msg.textContent = data.error || "激活码无效，请核对后重试";
+      msg.className = "modal-msg err";
+    }
+  } catch (_) {
+    msg.textContent = "验证服务暂时不可用，请稍后再试或联系客服";
     msg.className = "modal-msg err";
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "激活";
   }
 }
 

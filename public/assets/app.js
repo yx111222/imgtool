@@ -65,9 +65,16 @@ function init() {
 
   $("#proBtn").addEventListener("click", openPro);
   $("#proBtn2").addEventListener("click", openPro);
-  $("#closeModal").addEventListener("click", () => $("#proModal").classList.add("hidden"));
+  $("#payBtn").addEventListener("click", startPay);
+  $("#closeModal").addEventListener("click", () => {
+    stopPoll();
+    $("#proModal").classList.add("hidden");
+  });
   $("#proModal").addEventListener("click", (e) => {
-    if (e.target.id === "proModal") $("#proModal").classList.add("hidden");
+    if (e.target.id === "proModal") {
+      stopPoll();
+      $("#proModal").classList.add("hidden");
+    }
   });
   $("#activateBtn").addEventListener("click", activate);
   $("#codeInput").addEventListener("keydown", (e) => {
@@ -366,7 +373,7 @@ async function activate() {
     const res = await fetch("/api/verify", {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ code: input }),
+      body: JSON.stringify({ code: input, device: deviceId() }),
     });
     const data = await res.json().catch(() => ({}));
     if (res.ok && data.ok) {
@@ -387,6 +394,73 @@ async function activate() {
     btn.disabled = false;
     btn.textContent = "激活";
   }
+}
+
+/* 设备标识：一码绑一台设备 */
+function deviceId() {
+  let d = localStorage.getItem("tz_device");
+  if (!d) {
+    d = crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random().toString(36).slice(2);
+    localStorage.setItem("tz_device", d);
+  }
+  return d;
+}
+
+/* 在线支付 → 回调自动发码 → 轮询取码自动激活 */
+let pollTimer = null;
+
+function stopPoll() {
+  if (pollTimer) clearInterval(pollTimer);
+  pollTimer = null;
+}
+
+async function startPay() {
+  const btn = $("#payBtn");
+  const msg = $("#modalMsg");
+  btn.disabled = true;
+  btn.textContent = "创建订单…";
+  msg.textContent = "";
+  msg.className = "modal-msg";
+  try {
+    const res = await fetch("/api/pay/create", { method: "POST" });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || !data.ok) {
+      msg.textContent = (data.error || "支付通道暂时不可用") + "，请扫码付款后联系客服获取激活码";
+      msg.className = "modal-msg err";
+      return;
+    }
+    window.open(data.url, "_blank");
+    msg.textContent = "已打开支付页，付款完成后本页会自动激活，请勿关闭…";
+    pollOrder(data.no);
+  } catch (_) {
+    msg.textContent = "网络异常，请稍后重试";
+    msg.className = "modal-msg err";
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "微信支付 ¥9.9 · 自动激活";
+  }
+}
+
+function pollOrder(no) {
+  stopPoll();
+  const started = Date.now();
+  pollTimer = setInterval(async () => {
+    if (Date.now() - started > 5 * 60 * 1000) {
+      stopPoll();
+      return;
+    }
+    try {
+      const r = await fetch(`/api/pay/status?no=${encodeURIComponent(no)}`);
+      const d = await r.json();
+      if (d.state === "paid" && d.code) {
+        stopPoll();
+        $("#codeInput").value = d.code;
+        activate();
+      }
+    } catch (_) {
+      /* 网络抖动忽略，继续轮询 */
+    }
+  }, 3000);
 }
 
 init();

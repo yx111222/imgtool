@@ -1,3 +1,7 @@
 name = "imgtool"
 pages_build_output_dir = "./public"
 compatibility_date = "2026-11-23"
+
+[[kv_namespaces]]
+binding = "CODES"
+id = "63cbaa3c8a4e468b9a11551109624458"
